@@ -1,0 +1,7 @@
+
+target/
+*.mv.db
+*.trace.db
+expense-tracker-db*
+.vscode/
+.idea/

@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | Expense Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="topbar">
+    <a class="brand" th:href="@{/expenses}">
+        <span class="brand-mark small">₹</span>
+        <span>
+            Expense Tracker
+            <small>PERSONAL FINANCE</small>
+        </span>
+    </a>
+
+    <nav>
+        <a class="active" th:href="@{/expenses}">Dashboard</a>
+    </nav>
+
+    <form th:action="@{/logout}" method="post">
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+        <button type="submit" class="button ghost small-button">
+            Sign out
+        </button>
+    </form>
+</header>
+
+<main class="container">
+
+    <section class="page-heading">
+        <div>
+            <p class="eyebrow">YOUR FINANCIAL OVERVIEW</p>
+            <h1>Expense Dashboard</h1>
+            <p class="muted">
+                Track your spending and keep your finances organised.
+            </p>
+        </div>
+
+        <a class="button primary" th:href="@{/expenses/new}">
+            + Add expense
+        </a>
+    </section>
+
+    <section class="stats-grid">
+
+        <article class="stat-card">
+            <p class="stat-label">Total spending</p>
+            <h2>
+                ₹<span th:text="${#numbers.formatDecimal(totalSpent, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+            </h2>
+            <p class="muted">Across all recorded expenses</p>
+        </article>
+
+        <article class="stat-card">
+            <p class="stat-label">This month's spending</p>
+            <h2>
+                ₹<span th:text="${#numbers.formatDecimal(monthlySpent, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+            </h2>
+            <p class="muted"
+               th:text="${#temporals.format(currentMonth.atDay(1), 'MMMM yyyy')}">
+                Current month
+            </p>
+        </article>
+
+        <article class="stat-card">
+            <p class="stat-label">Transactions</p>
+            <h2 th:text="${expenseCount}">0</h2>
+            <p class="muted">Expenses recorded</p>
+        </article>
+
+    </section>
+
+    <section class="content-grid">
+
+        <article class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Recent expenses</h2>
+                    <p class="muted">Your latest recorded transactions</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper" th:if="${!#lists.isEmpty(expenses)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="expense : ${expenses}">
+                        <td>
+                            <strong th:text="${expense.description}">
+                                Groceries
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="category-badge"
+                                  th:text="${expense.category}">
+                                Food
+                            </span>
+                        </td>
+
+                        <td th:text="${#temporals.format(expense.expenseDate, 'dd MMM yyyy')}">
+                            15 Oct 2026
+                        </td>
+
+                        <td class="amount-cell">
+                            ₹<span th:text="${#numbers.formatDecimal(expense.amount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                <a class="button ghost small-button"
+                                   th:href="@{/expenses/{id}/edit(id=${expense.id})}">
+                                    Edit
+                                </a>
+
+                                <form th:action="@{/expenses/{id}/delete(id=${expense.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('Delete this expense?');">
+
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+
+                                    <button type="submit"
+                                            class="button danger small-button">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(expenses)}">
+                <div class="empty-icon">₹</div>
+                <h3>No expenses yet</h3>
+                <p class="muted">
+                    Add your first transaction to start tracking your spending.
+                </p>
+                <a class="button primary" th:href="@{/expenses/new}">
+                    Add your first expense
+                </a>
+            </div>
+        </article>
+
+        <aside class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Spending by category</h2>
+                    <p class="muted">All recorded expenses</p>
+                </div>
+            </div>
+
+            <div class="category-list"
+                 th:if="${!#maps.isEmpty(categoryTotals)}">
+
+                <div class="category-row"
+                     th:each="entry : ${categoryTotals}">
+
+                    <div>
+                        <strong th:text="${entry.key}">Food</strong>
+                        <span class="category-total">
+                            ₹<span th:text="${#numbers.formatDecimal(entry.value, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="empty-category"
+                 th:if="${#maps.isEmpty(categoryTotals)}">
+                <p class="muted">
+                    Category totals will appear after you add expenses.
+                </p>
+            </div>
+        </aside>
+
+    </section>
+
+    <footer class="footer">
+        <span>Expense Tracker</span>
+        <span>Your expenses are stored in the local database.</span>
+    </footer>
+
+</main>
+
+</body>
+</html>

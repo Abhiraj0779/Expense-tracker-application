@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | Expense Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="login-page">
+
+    <main class="login-container">
+        <section class="login-card">
+            <div class="login-icon">₹</div>
+
+            <p class="eyebrow">PERSONAL FINANCE</p>
+            <h1>Welcome back</h1>
+            <p class="muted">Sign in to manage your expenses.</p>
+
+            <div class="alert error-alert" th:if="${param.error}">
+                Invalid username or password. Please try again.
+            </div>
+
+            <div class="alert success-alert" th:if="${param.logout}">
+                You have been logged out successfully.
+            </div>
+
+            <form th:action="@{/login}" method="post" class="stack-form">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <label>
+                    Username
+                    <input type="text"
+                           name="username"
+                           placeholder="Enter your username"
+                           autocomplete="username"
+                           required
+                           autofocus>
+                </label>
+
+                <label>
+                    Password
+                    <input type="password"
+                           name="password"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required>
+                </label>
+
+                <button type="submit" class="button primary login-button">
+                    Sign in →
+                </button>
+            </form>
+
+            <div class="demo-credentials">
+                <h3>Demo accounts</h3>
+                <p><strong>Username:</strong> demo</p>
+                <p><strong>Password:</strong> demo123</p>
+                <p class="muted">A second account is also available.</p>
+                <p><strong>Username:</strong> student</p>
+                <p><strong>Password:</strong> student123</p>
+            </div>
+
+            <p class="login-footer">Expense Tracker · Personal spending made simple</p>
+        </section>
+    </main>
+
+</body>
+</html>
